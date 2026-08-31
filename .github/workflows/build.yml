@@ -26,6 +26,10 @@ jobs:
 
     env:
       PREPARE_PATH: "Telegram/build/prepare/prepare.py"
+      # Pinned, as upstream CI pins it. Letting the runner pick the newest MSVC builds Qt
+      # against one STL and links the app against another, which surfaces as unresolved
+      # __std_rotate / __std_replace_copy_1 -- a link error that names no file of ours.
+      TOOLSET: "14.44"
 
     defaults:
       run:
@@ -60,6 +64,7 @@ jobs:
 
           echo "$(sha256sum $TBUILD/$REPO_NAME/$PREPARE_PATH | awk '{ print $1 }')" >> CACHE_KEY.txt
           echo "$SDK" >> CACHE_KEY.txt
+          echo "$TOOLSET" >> CACHE_KEY.txt
           echo "CACHE_KEY=$(sha256sum CACHE_KEY.txt | awk '{ print $1 }')" >> $GITHUB_ENV
 
           # prepare.py cherry-picks patches, and git refuses to do that unidentified.
@@ -71,6 +76,7 @@ jobs:
         with:
           arch: x64
           sdk: ${{ env.SDK }}
+          toolset: ${{ env.TOOLSET }}
 
       - name: NuGet sources.
         run: |
