@@ -79,7 +79,7 @@ jobs:
 
       - name: ThirdParty cache.
         id: cache-third-party
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: ${{ env.TBUILD }}\ThirdParty
           key: ${{ runner.OS }}-third-party-${{ env.CACHE_KEY }}
@@ -87,7 +87,7 @@ jobs:
 
       - name: Libraries cache.
         id: cache-libs
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             ${{ env.LibrariesPath }}\*
@@ -100,7 +100,7 @@ jobs:
 
       - name: Qt cache.
         id: cache-qt
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             ${{ env.LibrariesPath }}\[qQ]t[_-]*
@@ -111,6 +111,37 @@ jobs:
       - name: Libraries.
         run: |
           %TBUILD%\%REPO_NAME%\Telegram\build\prepare\win.bat skip-release silent qt6
+
+      # Saved here rather than by actions/cache's own post step, which skips saving when the
+      # job fails -- and a failure after this point still leaves an hour and a half of built
+      # libraries well worth keeping.
+      - name: Save ThirdParty cache.
+        if: always() && steps.cache-third-party.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.TBUILD }}\ThirdParty
+          key: ${{ runner.OS }}-third-party-${{ env.CACHE_KEY }}
+
+      - name: Save libraries cache.
+        if: always() && steps.cache-libs.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ${{ env.LibrariesPath }}\*
+            !${{ env.LibrariesPath }}\cache_keys
+            !${{ env.LibrariesPath }}\[qQ]t[_-]*
+            ${{ env.LibrariesPath }}\cache_keys\*
+            !${{ env.LibrariesPath }}\cache_keys\[qQ]t[_-]*
+          key: ${{ runner.OS }}-libs-${{ env.CACHE_KEY }}
+
+      - name: Save Qt cache.
+        if: always() && steps.cache-qt.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ${{ env.LibrariesPath }}\[qQ]t[_-]*
+            ${{ env.LibrariesPath }}\cache_keys\[qQ]t[_-]*
+          key: ${{ runner.OS }}-qt6-${{ env.CACHE_KEY }}
 
       - name: Choose API credentials.
         shell: bash
@@ -137,6 +168,7 @@ jobs:
           cd %TBUILD%\%REPO_NAME%\Telegram
 
           call configure.bat ^
+          x64 ^
           qt6 ^
           %BUILD_API% ^
           -D CMAKE_CONFIGURATION_TYPES=Release ^
