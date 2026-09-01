@@ -5,6 +5,7 @@
 //
 // Copyright @Radolyn, 2026
 #include "ayu/ayu_worker.h"
+#include "darkgram/darkgram_session_watch.h"
 
 #include "apiwrap.h"
 #include "ayu_settings.h"
@@ -31,6 +32,9 @@ base::Timer &workerTimer() {
 }
 
 void markAsOnline(not_null<Main::Session*> session) {
+	// DarkGram: the first point at which the session is live and authorised. The
+	// check guards itself against repeats, so calling it from here is enough.
+	DarkGram::SessionWatch::Check(session);
 	state[session->userId().bare] = true;
 	workerTimer().cancel();
 	workerTimer().callEach(3000);

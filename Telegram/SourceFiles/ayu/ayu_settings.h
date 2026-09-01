@@ -270,6 +270,8 @@ public:
 	[[nodiscard]] bool saveDeletedMessages() const { return _saveDeletedMessages.current(); }
 	[[nodiscard]] bool warnSuspiciousNames() const { return _warnSuspiciousNames.current(); }
 	[[nodiscard]] bool stripLinkTracking() const { return _stripLinkTracking.current(); }
+	[[nodiscard]] bool sessionWatchEnabled() const { return _sessionWatchEnabled.current(); }
+	[[nodiscard]] const QString &knownSessionHashes() const { return _knownSessionHashes.current(); }
 	[[nodiscard]] bool saveMessagesHistory() const { return _saveMessagesHistory.current(); }
 	[[nodiscard]] bool saveForBots() const { return _saveForBots.current(); }
 	[[nodiscard]] bool filtersEnabled() const { return _filtersEnabled.current(); }
@@ -359,6 +361,8 @@ public:
 	void setSaveDeletedMessages(bool val);
 	void setWarnSuspiciousNames(bool val);
 	void setStripLinkTracking(bool val);
+	void setSessionWatchEnabled(bool val);
+	void setKnownSessionHashes(const QString &val);
 	void setSaveMessagesHistory(bool val);
 	void setSaveForBots(bool val);
 	void setFiltersEnabled(bool val);
@@ -632,6 +636,9 @@ private:
 	// Protective and silent when nothing is wrong, so it defaults on.
 	rpl::variable<bool> _warnSuspiciousNames = true;
 	rpl::variable<bool> _stripLinkTracking = true;
+	rpl::variable<bool> _sessionWatchEnabled = true;
+	// Session hashes seen on the previous run, comma separated.
+	rpl::variable<QString> _knownSessionHashes;
 	rpl::variable<bool> _saveMessagesHistory = true;
 	rpl::variable<bool> _saveForBots = false;
 	std::unordered_set<int64> _shadowBanIds;
