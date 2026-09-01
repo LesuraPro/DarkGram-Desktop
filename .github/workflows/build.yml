@@ -186,7 +186,9 @@ jobs:
         run: |
           set OUT=%TBUILD%\%REPO_NAME%\out\Debug
           mkdir artifact
-          move %OUT%\Telegram.exe artifact\DarkGram.exe
+          rem The binary is named after the app, not the target: AppFile in
+          rem core/version.h decides it, so after the rename it is DarkGram.exe.
+          move %OUT%\DarkGram.exe artifact\
 
       - uses: actions/upload-artifact@v4
         name: Upload artifact.
