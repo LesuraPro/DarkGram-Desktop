@@ -45,41 +45,55 @@ void ShowPrivacyAudit(not_null<Main::Session*> session) {
 	auto &privacy = session->api().userPrivacy();
 	const auto named = AuditedKeys();
 
-	// Each key is its own request and its own producer, so they are combined into a
-	// single answer rather than reported eight separate times.
-	auto producers = std::vector<rpl::producer<Api::UserPrivacy::Rule>>();
-	for (const auto &entry : named) {
-		privacy.reload(entry.key);
-		producers.push_back(privacy.value(entry.key));
-	}
+	// Each key is a separate request with a separate producer, and rpl::combine here is
+	// variadic over a fixed list rather than a vector, so the answers are gathered by
+	// hand and reported once the last one lands.
+	struct Gather {
+		std::vector<std::optional<Option>> options;
+		int remaining = 0;
+		bool reported = false;
+	};
+	const auto state = std::make_shared<Gather>();
+	state->options.resize(named.size());
+	state->remaining = int(named.size());
 
-	rpl::combine(
-		std::move(producers)
-	) | rpl::take(1) | on_next([=](
-			const std::vector<Api::UserPrivacy::Rule> &rules) {
-		auto exposed = QStringList();
-		auto restricted = 0;
-		const auto count = std::min(int(rules.size()), int(named.size()));
-		for (auto i = 0; i != count; ++i) {
-			if (rules[i].option == Option::Everyone) {
-				exposed.append(named[i].title);
-			} else {
-				++restricted;
+	for (auto i = 0; i != int(named.size()); ++i) {
+		const auto index = i;
+		privacy.reload(named[index].key);
+		privacy.value(
+			named[index].key
+		) | rpl::take(1) | on_next([=](const Api::UserPrivacy::Rule &rule) {
+			if (state->reported || state->options[index].has_value()) {
+				return;
 			}
-		}
+			state->options[index] = rule.option;
+			if (--state->remaining > 0) {
+				return;
+			}
+			state->reported = true;
 
-		auto text = exposed.isEmpty()
-			? u"Всем не видно ничего."_q
-			: (u"Видно всем:\n- "_q + exposed.join(u"\n- "_q));
-		if (restricted > 0) {
-			text += u"\n\nОграниченных настроек: "_q
-				+ QString::number(restricted);
-		}
-		Ui::show(Ui::MakeInformBox({
-			.text = text,
-			.title = u"Что видно посторонним"_q,
-		}));
-	}, Lifetime);
+			auto exposed = QStringList();
+			auto restricted = 0;
+			for (auto j = 0; j != int(named.size()); ++j) {
+				if (state->options[j] == Option::Everyone) {
+					exposed.append(named[j].title);
+				} else {
+					++restricted;
+				}
+			}
+			auto text = exposed.isEmpty()
+				? u"Всем не видно ничего."_q
+				: (u"Видно всем:\n- "_q + exposed.join(u"\n- "_q));
+			if (restricted > 0) {
+				text += u"\n\nОграниченных настроек: "_q
+					+ QString::number(restricted);
+			}
+			Ui::show(Ui::MakeInformBox({
+				.text = text,
+				.title = u"Что видно посторонним"_q,
+			}));
+		}, Lifetime);
+	}
 }
 
 void ShowConnectionInfo(not_null<Main::Session*> session) {
