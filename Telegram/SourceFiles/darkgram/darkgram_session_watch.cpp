@@ -90,7 +90,7 @@ void Check(not_null<Main::Session*> session) {
 	) | rpl::filter([](const Api::Authorizations::List &list) {
 		// The list is published empty before the request lands.
 		return !list.empty();
-	}) | rpl::take(1) | rpl::start_with_next([](
+	}) | rpl::take(1) | on_next([](
 			const Api::Authorizations::List &list) {
 		Report(list);
 	}, Lifetime);
