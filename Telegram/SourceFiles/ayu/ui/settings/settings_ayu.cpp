@@ -5,6 +5,7 @@
 //
 // Copyright @Radolyn, 2026
 #include "ayu/ui/settings/settings_ayu.h"
+#include "darkgram/darkgram_account_tools.h"
 
 #include "lang_auto.h"
 #include "ayu/ayu_settings.h"
@@ -344,6 +345,27 @@ void BuildGhostEssentials(SectionBuilder &builder) {
 
 			const auto state = container->lifetime().make_state<GhostPickerState>();
 			state->selectedUserId = initialUserId;
+
+			// DarkGram: both answer a question the app could not answer in one place --
+			// what is exposed, and what the connection is actually doing.
+			AddSubsectionTitle(container, rpl::single(u"DarkGram"_q));
+			AddButtonWithIcon(
+				container,
+				rpl::single(u"Что видно посторонним"_q),
+				st::settingsButtonNoIcon
+			)->setClickedCallback([=] {
+				DarkGram::AccountTools::ShowPrivacyAudit(&controller->session());
+			});
+			AddButtonWithIcon(
+				container,
+				rpl::single(u"Соединение"_q),
+				st::settingsButtonNoIcon
+			)->setClickedCallback([=] {
+				DarkGram::AccountTools::ShowConnectionInfo(&controller->session());
+			});
+			AddSkip(container);
+			AddDivider(container);
+			AddSkip(container);
 
 			const auto title = AddSubsectionTitle(container, tr::ayu_GhostEssentialsHeader());
 

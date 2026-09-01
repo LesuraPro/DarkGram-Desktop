@@ -1,0 +1,24 @@
+// This is the source code of DarkGram for Desktop.
+#pragma once
+
+#include "base/basic_types.h"
+
+namespace Main {
+class Session;
+} // namespace Main
+
+namespace DarkGram::AccountTools {
+
+// What a stranger can see about you.
+//
+// Telegram has the settings, spread over a dozen screens, each showing its own value and
+// none showing the total. Nobody audits twelve screens, so in practice the answer is "I
+// assume it's fine". This is that answer in one list.
+void ShowPrivacyAudit(not_null<Main::Session*> session);
+
+// What the connection is actually doing, rather than what is configured. The proxy screen
+// shows the setting; a proxy that failed and fell back leaves it switched on while the
+// traffic goes direct.
+void ShowConnectionInfo(not_null<Main::Session*> session);
+
+} // namespace DarkGram::AccountTools

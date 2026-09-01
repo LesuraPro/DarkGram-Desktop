@@ -106,6 +106,8 @@ set(ayugram_files
         ayu/ayu_worker.h
         ayu/ayu_url_handlers.cpp
         ayu/ayu_url_handlers.h
+        darkgram/darkgram_account_tools.cpp
+        darkgram/darkgram_account_tools.h
         darkgram/darkgram_peer_tools.cpp
         darkgram/darkgram_peer_tools.h
         darkgram/darkgram_session_watch.cpp
