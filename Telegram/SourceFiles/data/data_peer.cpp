@@ -6,6 +6,7 @@ For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "data/data_peer.h"
+#include "darkgram/darkgram_peer_tools.h"
 
 #include "api/api_sensitive_content.h"
 #include "data/data_user.h"
@@ -311,6 +312,12 @@ void PeerData::updateNameDelayed(
 			return;
 		}
 	}
+	// DarkGram: the old profile is still in place here and the early return above has
+	// already established that something changed.
+	if (_nameVersion > 1) {
+		DarkGram::PeerTools::RecordNameChange(this, newName, newUsername);
+	}
+
 	_name = newName;
 	invalidateEmptyUserpic();
 

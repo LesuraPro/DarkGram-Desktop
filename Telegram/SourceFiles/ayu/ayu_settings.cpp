@@ -556,6 +556,18 @@ void AyuSettings::setSessionWatchEnabled(bool val) {
 	save();
 }
 
+void AyuSettings::setTrackNameChanges(bool val) {
+	if (_trackNameChanges.current() == val) return;
+	_trackNameChanges = val;
+	save();
+}
+
+void AyuSettings::setNameChangeLog(const QString &val) {
+	if (_nameChangeLog.current() == val) return;
+	_nameChangeLog = val;
+	save();
+}
+
 void AyuSettings::setKnownSessionHashes(const QString &val) {
 	if (_knownSessionHashes.current() == val) return;
 	_knownSessionHashes = val;
@@ -1106,6 +1118,8 @@ void to_json(nlohmann::json &j, const AyuSettings &s) {
 		{"warnSuspiciousNames", s._warnSuspiciousNames.current()},
 		{"stripLinkTracking", s._stripLinkTracking.current()},
 		{"sessionWatchEnabled", s._sessionWatchEnabled.current()},
+		{"trackNameChanges", s._trackNameChanges.current()},
+		{"nameChangeLog", s._nameChangeLog.current()},
 		{"knownSessionHashes", s._knownSessionHashes.current()},
 		{"saveMessagesHistory", s._saveMessagesHistory.current()},
 		{"saveForBots", s._saveForBots.current()},
@@ -1214,6 +1228,8 @@ void from_json(const nlohmann::json &j, AyuSettings &s) {
 	s._warnSuspiciousNames = j.value("warnSuspiciousNames", defaults._warnSuspiciousNames.current());
 	s._stripLinkTracking = j.value("stripLinkTracking", defaults._stripLinkTracking.current());
 	s._sessionWatchEnabled = j.value("sessionWatchEnabled", defaults._sessionWatchEnabled.current());
+	s._trackNameChanges = j.value("trackNameChanges", defaults._trackNameChanges.current());
+	s._nameChangeLog = j.value("nameChangeLog", defaults._nameChangeLog.current());
 	s._knownSessionHashes = j.value("knownSessionHashes", defaults._knownSessionHashes.current());
 	s._saveMessagesHistory = j.value("saveMessagesHistory", defaults._saveMessagesHistory.current());
 	s._saveForBots = j.value("saveForBots", defaults._saveForBots.current());
