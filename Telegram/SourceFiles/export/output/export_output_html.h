@@ -173,6 +173,8 @@ private:
 	DialogsMode _dialogsMode = DialogsMode::None;
 
 	int _messagesCount = 0;
+	// DarkGram: running integrity chain over the written messages.
+	QByteArray _darkGramChain;
 	std::unique_ptr<MessageInfo> _lastMessageInfo;
 	int _dateMessageId = 0;
 	std::unique_ptr<Wrap> _chats;

@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "export/output/export_output_html.h"
 
+#include <QCryptographicHash>
+
 #include "core/utils.h"
 #include "countries/countries_instance.h"
 #include "export/data/export_data_types.h"
@@ -5976,6 +5978,13 @@ Result HtmlWriter::writeDialogSlice(const Data::MessagesSlice &data) {
 			messageLinkWrapper);
 		block.append(content);
 
+		// DarkGram: chained over what is actually written, so the final value certifies
+		// this file rather than a reconstruction of it. Altering, inserting or removing
+		// any message changes its own link and every link after it.
+		_darkGramChain = QCryptographicHash::hash(
+			_darkGramChain + content,
+			QCryptographicHash::Sha256);
+
 		++_messagesCount;
 		saved = info;
 		previous = &*saved;
@@ -6009,6 +6018,23 @@ Result HtmlWriter::writeDialogEnd() {
 
 	if (const auto result = writeEmptySinglePeer(); !result) {
 		return result;
+	}
+
+	if (!_darkGramChain.isEmpty()) {
+		auto manifest = QByteArray();
+		manifest.append("<div style=\"margin:32px 0;padding:16px 0;"
+			"border-top:1px solid #444;color:#888;font-size:12px\">");
+		manifest.append("Integrity chain (SHA-256): <code>");
+		manifest.append(_darkGramChain.toHex());
+		manifest.append("</code><br>Each message block is hashed as written; the chain "
+			"advances as SHA-256 of the previous value concatenated with the next block. "
+			"Altering, inserting or removing any message changes the value above. This "
+			"shows the file is unmodified since export, not that the messages were sent."
+			"</div>");
+		if (const auto written = _chat->writeBlock(manifest); !written) {
+			return written;
+		}
+		_darkGramChain = QByteArray();
 	}
 
 	if (const auto closed = base::take(_chat)->close(); !closed) {
