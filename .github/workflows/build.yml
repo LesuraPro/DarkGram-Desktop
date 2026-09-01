@@ -71,7 +71,7 @@ jobs:
           git config --global user.email "build@darkgram.local"
           git config --global user.name "DarkGram Build"
 
-      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: Eden-CI/msvc-dev-cmd@master
         name: Native Tools Command Prompt.
         with:
           arch: x64
@@ -89,7 +89,6 @@ jobs:
         with:
           path: ${{ env.TBUILD }}\ThirdParty
           key: ${{ runner.OS }}-third-party-${{ env.CACHE_KEY }}
-          restore-keys: ${{ runner.OS }}-third-party-
 
       - name: Libraries cache.
         id: cache-libs
@@ -102,7 +101,6 @@ jobs:
             ${{ env.LibrariesPath }}\cache_keys\*
             !${{ env.LibrariesPath }}\cache_keys\[qQ]t[_-]*
           key: ${{ runner.OS }}-libs-${{ env.CACHE_KEY }}
-          restore-keys: ${{ runner.OS }}-libs-
 
       - name: Qt cache.
         id: cache-qt
@@ -112,7 +110,6 @@ jobs:
             ${{ env.LibrariesPath }}\[qQ]t[_-]*
             ${{ env.LibrariesPath }}\cache_keys\[qQ]t[_-]*
           key: ${{ runner.OS }}-qt6-${{ env.CACHE_KEY }}
-          restore-keys: ${{ runner.OS }}-qt6-
 
       - name: Libraries.
         run: |
