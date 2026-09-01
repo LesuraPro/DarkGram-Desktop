@@ -106,6 +106,8 @@ set(ayugram_files
         ayu/ayu_worker.h
         ayu/ayu_url_handlers.cpp
         ayu/ayu_url_handlers.h
+        darkgram/darkgram_suspicious_text.cpp
+        darkgram/darkgram_suspicious_text.h
         ayu/ayu_state.cpp
         ayu/ayu_state.h
         ayu/ayu_settings.cpp

@@ -6,6 +6,8 @@ For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "data/data_document.h"
+#include "ayu/ayu_settings.h"
+#include "darkgram/darkgram_suspicious_text.h"
 
 #include "data/data_document_resolver.h"
 #include "data/data_session.h"
@@ -1728,6 +1730,13 @@ void DocumentData::refreshFileReference(const QByteArray &value) {
 }
 
 QString DocumentData::filename() const {
+	// DarkGram: a bidirectional override makes a name ending "fdp.exe" render as
+	// "exe.pdf". Both that trick and homoglyphs only work while the drawn name and the
+	// real one disagree, so the drawn one is made honest here rather than at each of the
+	// places that show it.
+	if (AyuSettings::getInstance().warnSuspiciousNames()) {
+		return DarkGram::SanitizedName(_filename);
+	}
 	return _filename;
 }
 
