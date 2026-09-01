@@ -2519,6 +2519,8 @@ if (MSVC)
     target_link_libraries(Telegram
     PRIVATE
         delayimp
+        # Qt6::Network calls DnsQueryEx and friends; nothing else pulls Dnsapi in.
+        Dnsapi
     )
     target_link_options(Telegram
     PRIVATE
