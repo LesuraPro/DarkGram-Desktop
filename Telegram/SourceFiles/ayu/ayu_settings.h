@@ -269,6 +269,7 @@ public:
 
 	[[nodiscard]] bool saveDeletedMessages() const { return _saveDeletedMessages.current(); }
 	[[nodiscard]] bool warnSuspiciousNames() const { return _warnSuspiciousNames.current(); }
+	[[nodiscard]] bool stripLinkTracking() const { return _stripLinkTracking.current(); }
 	[[nodiscard]] bool saveMessagesHistory() const { return _saveMessagesHistory.current(); }
 	[[nodiscard]] bool saveForBots() const { return _saveForBots.current(); }
 	[[nodiscard]] bool filtersEnabled() const { return _filtersEnabled.current(); }
@@ -357,6 +358,7 @@ public:
 
 	void setSaveDeletedMessages(bool val);
 	void setWarnSuspiciousNames(bool val);
+	void setStripLinkTracking(bool val);
 	void setSaveMessagesHistory(bool val);
 	void setSaveForBots(bool val);
 	void setFiltersEnabled(bool val);
@@ -629,6 +631,7 @@ private:
 	rpl::variable<bool> _saveDeletedMessages = true;
 	// Protective and silent when nothing is wrong, so it defaults on.
 	rpl::variable<bool> _warnSuspiciousNames = true;
+	rpl::variable<bool> _stripLinkTracking = true;
 	rpl::variable<bool> _saveMessagesHistory = true;
 	rpl::variable<bool> _saveForBots = false;
 	std::unordered_set<int64> _shadowBanIds;

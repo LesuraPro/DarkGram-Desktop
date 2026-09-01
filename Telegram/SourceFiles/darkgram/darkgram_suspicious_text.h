@@ -37,4 +37,12 @@ struct NameInspection {
 // is what the system will actually act on.
 [[nodiscard]] QString SanitizedName(const QString &name);
 
+// Removes query parameters that identify the person following a link rather than
+// selecting what is shown. They survive copying and forwarding, so a link shared in a
+// chat otherwise carries the identity of whoever received it first to everyone after.
+//
+// Non-http(s) links, links without a query, and links carrying no tracking parameter are
+// returned untouched: a guess here silently breaks links, which is worse than tracking.
+[[nodiscard]] QString StripTrackingParameters(const QString &url);
+
 } // namespace DarkGram

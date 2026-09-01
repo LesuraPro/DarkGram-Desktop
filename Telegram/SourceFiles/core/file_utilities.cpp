@@ -6,6 +6,8 @@ For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "core/file_utilities.h"
+#include "ayu/ayu_settings.h"
+#include "darkgram/darkgram_suspicious_text.h"
 
 #include "core/version.h"
 #include "storage/localstorage.h"
@@ -124,9 +126,14 @@ QString filedialogNextFilename(
 namespace File {
 
 void OpenUrl(const QString &url) {
+	// DarkGram: the single point every external link passes through, so stripping the
+	// identifying parameters here covers all of them at once.
+	const auto opened = AyuSettings::getInstance().stripLinkTracking()
+		? DarkGram::StripTrackingParameters(url)
+		: url;
 	crl::on_main([=] {
 		Ui::PreventDelayedActivation();
-		Platform::File::UnsafeOpenUrl(url);
+		Platform::File::UnsafeOpenUrl(opened);
 	});
 }
 

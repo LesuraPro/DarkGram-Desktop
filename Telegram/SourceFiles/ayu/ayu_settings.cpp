@@ -544,6 +544,12 @@ void AyuSettings::setWarnSuspiciousNames(bool val) {
 	save();
 }
 
+void AyuSettings::setStripLinkTracking(bool val) {
+	if (_stripLinkTracking.current() == val) return;
+	_stripLinkTracking = val;
+	save();
+}
+
 void AyuSettings::setSaveMessagesHistory(bool val) {
 	if (_saveMessagesHistory.current() == val) return;
 	_saveMessagesHistory = val;
@@ -1086,6 +1092,7 @@ void to_json(nlohmann::json &j, const AyuSettings &s) {
 		{"useGlobalGhostMode", s._useGlobalGhostMode.current()},
 		{"saveDeletedMessages", s._saveDeletedMessages.current()},
 		{"warnSuspiciousNames", s._warnSuspiciousNames.current()},
+		{"stripLinkTracking", s._stripLinkTracking.current()},
 		{"saveMessagesHistory", s._saveMessagesHistory.current()},
 		{"saveForBots", s._saveForBots.current()},
 		{"shadowBanIds", s._shadowBanIds},
@@ -1191,6 +1198,7 @@ void from_json(const nlohmann::json &j, AyuSettings &s) {
 	s._useGlobalGhostMode = j.value("useGlobalGhostMode", defaults._useGlobalGhostMode.current());
 	s._saveDeletedMessages = j.value("saveDeletedMessages", defaults._saveDeletedMessages.current());
 	s._warnSuspiciousNames = j.value("warnSuspiciousNames", defaults._warnSuspiciousNames.current());
+	s._stripLinkTracking = j.value("stripLinkTracking", defaults._stripLinkTracking.current());
 	s._saveMessagesHistory = j.value("saveMessagesHistory", defaults._saveMessagesHistory.current());
 	s._saveForBots = j.value("saveForBots", defaults._saveForBots.current());
 	s._shadowBanIds = j.value("shadowBanIds", defaults._shadowBanIds);

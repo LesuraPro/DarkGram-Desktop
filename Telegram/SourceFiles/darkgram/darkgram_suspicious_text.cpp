@@ -2,6 +2,8 @@
 #include "darkgram/darkgram_suspicious_text.h"
 
 #include <QSet>
+#include <QUrl>
+#include <QUrlQuery>
 
 namespace DarkGram {
 namespace {
@@ -110,6 +112,49 @@ QString SanitizedName(const QString &name) {
 		result.append(QString::fromUcs4(&ch, 1));
 	}
 	return result;
+}
+
+
+namespace {
+
+[[nodiscard]] bool IsTrackingParameter(const QString &name) {
+	static const auto known = QSet<QString>{
+		u"fbclid"_q, u"gclid"_q, u"dclid"_q, u"gbraid"_q, u"wbraid"_q, u"msclkid"_q,
+		u"yclid"_q, u"twclid"_q, u"ttclid"_q, u"igshid"_q, u"mc_eid"_q, u"mc_cid"_q,
+		u"_openstat"_q, u"vero_id"_q, u"wickedid"_q, u"oly_enc_id"_q, u"oly_anon_id"_q,
+		u"ref_src"_q, u"ref_url"_q,
+	};
+	const auto lowered = name.toLower();
+	// Every utm_* is analytics by construction, so match the prefix rather than list them.
+	return lowered.startsWith(u"utm_"_q) || known.contains(lowered);
+}
+
+} // namespace
+
+QString StripTrackingParameters(const QString &url) {
+	auto parsed = QUrl(url);
+	const auto scheme = parsed.scheme().toLower();
+	if (scheme != u"http"_q && scheme != u"https"_q) {
+		return url;
+	}
+	auto query = QUrlQuery(parsed);
+	const auto items = query.queryItems();
+	if (items.isEmpty()) {
+		return url;
+	}
+	auto kept = QList<QPair<QString, QString>>();
+	for (const auto &item : items) {
+		if (!IsTrackingParameter(item.first)) {
+			kept.append(item);
+		}
+	}
+	if (kept.size() == items.size()) {
+		return url;
+	}
+	auto updated = QUrlQuery();
+	updated.setQueryItems(kept);
+	parsed.setQuery(updated);
+	return parsed.toString();
 }
 
 } // namespace DarkGram
