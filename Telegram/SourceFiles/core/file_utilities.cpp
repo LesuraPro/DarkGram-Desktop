@@ -18,6 +18,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "base/unixtime.h"
 #include "ui/delayed_activation.h"
 #include "ui/chat/attach/attach_extensions.h"
+#include "ui/boxes/confirm_box.h"
+#include "boxes/abstract_box.h"
 #include "main/main_session.h"
 #include "mainwindow.h"
 
@@ -156,9 +158,28 @@ void OpenWith(const QString &filepath) {
 }
 
 void Launch(const QString &filepath) {
+	// DarkGram: every file opened with the system handler passes through here, so one
+	// check covers them all -- chat attachments and anything else alike.
+	const auto reason = AyuSettings::getInstance().warnSuspiciousNames()
+		? DarkGram::DangerousFileReason(QFileInfo(filepath).fileName())
+		: QString();
+	const auto proceed = [=] {
+		crl::on_main([=] {
+			Ui::PreventDelayedActivation();
+			Platform::File::UnsafeLaunch(filepath);
+		});
+	};
+	if (reason.isEmpty()) {
+		proceed();
+		return;
+	}
 	crl::on_main([=] {
-		Ui::PreventDelayedActivation();
-		Platform::File::UnsafeLaunch(filepath);
+		Ui::show(Ui::MakeConfirmBox({
+			.text = reason,
+			.confirmed = [=](Fn<void()> close) { close(); proceed(); },
+			.confirmText = u"Всё равно открыть"_q,
+			.title = u"Это не документ"_q,
+		}));
 	});
 }
 

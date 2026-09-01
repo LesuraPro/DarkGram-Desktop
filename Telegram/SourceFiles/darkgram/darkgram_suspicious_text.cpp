@@ -2,6 +2,7 @@
 #include "darkgram/darkgram_suspicious_text.h"
 
 #include <QSet>
+#include <QMap>
 #include <QUrl>
 #include <QUrlQuery>
 
@@ -155,6 +156,38 @@ QString StripTrackingParameters(const QString &url) {
 	updated.setQueryItems(kept);
 	parsed.setQuery(updated);
 	return parsed.toString();
+}
+
+} // namespace DarkGram
+
+namespace DarkGram {
+
+QString DangerousFileReason(const QString &fileName) {
+	// The one that matters most is .mobileconfig on Apple platforms and .reg or .ps1
+	// here: files that reconfigure the machine while looking like documents. The rest
+	// are ordinary executables, which matter because a messenger is where they arrive.
+	static const auto reasons = QMap<QString, QString>{
+		{u"mobileconfig"_q, u"Это профиль конфигурации. Он может установить корневой сертификат и прокси, после чего весь шифрованный трафик станет читаемым для выдавшего его."_q},
+		{u"reg"_q, u"Это файл реестра. Открытие изменит настройки Windows."_q},
+		{u"exe"_q, u"Это программа. Она запустится и получит права вашей учётной записи."_q},
+		{u"msi"_q, u"Это установщик. Он запустится и установит программу."_q},
+		{u"scr"_q, u"Это программа, замаскированная под заставку."_q},
+		{u"com"_q, u"Это программа."_q},
+		{u"pif"_q, u"Это программа."_q},
+		{u"bat"_q, u"Это скрипт. Он выполнит команды на вашем компьютере."_q},
+		{u"cmd"_q, u"Это скрипт. Он выполнит команды на вашем компьютере."_q},
+		{u"vbs"_q, u"Это скрипт. Он выполнит команды на вашем компьютере."_q},
+		{u"ps1"_q, u"Это скрипт PowerShell. Он выполнит команды на вашем компьютере."_q},
+		{u"js"_q, u"Это скрипт. Он выполнит команды на вашем компьютере."_q},
+		{u"jar"_q, u"Это программа Java. Она запустится."_q},
+		{u"apk"_q, u"Это установочный пакет Android."_q},
+	};
+	const auto sanitized = SanitizedName(fileName);
+	const auto dot = sanitized.lastIndexOf('.');
+	if (dot < 0) {
+		return QString();
+	}
+	return reasons.value(sanitized.mid(dot + 1).toLower());
 }
 
 } // namespace DarkGram

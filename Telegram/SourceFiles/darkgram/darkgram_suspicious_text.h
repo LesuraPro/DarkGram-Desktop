@@ -45,4 +45,9 @@ struct NameInspection {
 // returned untouched: a guess here silently breaks links, which is worse than tracking.
 [[nodiscard]] QString StripTrackingParameters(const QString &url);
 
+// Why a file is worth a second look before opening, or an empty string when it is an
+// ordinary document. Judged on the sanitised name, so a reordering character cannot hide
+// the extension being checked.
+[[nodiscard]] QString DangerousFileReason(const QString &fileName);
+
 } // namespace DarkGram
