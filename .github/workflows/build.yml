@@ -36,6 +36,24 @@ jobs:
         shell: cmd
 
     steps:
+      - name: Free runner disk space.
+        shell: pwsh
+        run: |
+          $paths = @(
+            'C:\Android',
+            'C:\Program Files (x86)\Android',
+            'C:\Program Files\dotnet',
+            'C:\Program Files\Google\Chrome',
+            'C:\Program Files (x86)\Microsoft\Edge'
+          )
+          foreach ($path in $paths) {
+            if (Test-Path $path) {
+              Remove-Item -Recurse -Force $path -ErrorAction SilentlyContinue
+              Write-Output "removed $path"
+            }
+          }
+          Get-PSDrive C | Select-Object Used,Free
+
       - name: Prepare directories.
         run: |
           mkdir %userprofile%\TBuild\Libraries
@@ -180,7 +198,7 @@ jobs:
           -D DESKTOP_APP_DISABLE_AUTOUPDATE=ON ^
           -D DESKTOP_APP_DISABLE_CRASH_REPORTS=ON
 
-          cmake --build ..\out --config Debug --parallel
+          cmake --build ..\out --config Debug --parallel 3
 
       - name: Collect artifact.
         run: |
