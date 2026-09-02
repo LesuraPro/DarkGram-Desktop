@@ -714,6 +714,13 @@ int getScheduleTime(int64 sumSize) {
 bool isMessageSavable(const not_null<HistoryItem*> item) {
 	const auto &settings = AyuSettings::getInstance();
 
+	// DarkGram: one-time media is worth keeping on its own terms. Tying it to the
+	// keep-deleted setting means the fire-marked photo still evaporates for anyone who
+	// wanted only that, which is exactly what it looked like on the phone.
+	if (settings.keepOneTimeMedia() && item->ttlDestroyAt() > 0) {
+		return true;
+	}
+
 	if (!settings.saveDeletedMessages()) {
 		return false;
 	}

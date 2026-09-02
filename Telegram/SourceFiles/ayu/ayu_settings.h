@@ -272,6 +272,8 @@ public:
 	[[nodiscard]] bool stripLinkTracking() const { return _stripLinkTracking.current(); }
 	[[nodiscard]] bool sessionWatchEnabled() const { return _sessionWatchEnabled.current(); }
 	[[nodiscard]] bool trackNameChanges() const { return _trackNameChanges.current(); }
+	[[nodiscard]] bool keepOneTimeMedia() const { return _keepOneTimeMedia.current(); }
+	[[nodiscard]] bool bypassCopyProtection() const { return _bypassCopyProtection.current(); }
 	[[nodiscard]] const QString &nameChangeLog() const { return _nameChangeLog.current(); }
 	[[nodiscard]] const QString &knownSessionHashes() const { return _knownSessionHashes.current(); }
 	[[nodiscard]] bool saveMessagesHistory() const { return _saveMessagesHistory.current(); }
@@ -365,6 +367,8 @@ public:
 	void setStripLinkTracking(bool val);
 	void setSessionWatchEnabled(bool val);
 	void setTrackNameChanges(bool val);
+	void setKeepOneTimeMedia(bool val);
+	void setBypassCopyProtection(bool val);
 	void setNameChangeLog(const QString &val);
 	void setKnownSessionHashes(const QString &val);
 	void setSaveMessagesHistory(bool val);
@@ -642,6 +646,8 @@ private:
 	rpl::variable<bool> _stripLinkTracking = true;
 	rpl::variable<bool> _sessionWatchEnabled = true;
 	rpl::variable<bool> _trackNameChanges = true;
+	rpl::variable<bool> _keepOneTimeMedia = false;
+	rpl::variable<bool> _bypassCopyProtection = false;
 	// Recent renames, as a JSON array.
 	rpl::variable<QString> _nameChangeLog;
 	// Session hashes seen on the previous run, comma separated.

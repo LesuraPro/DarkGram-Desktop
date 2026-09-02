@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "data/data_peer.h"
 #include "darkgram/darkgram_peer_tools.h"
+#include "ayu/ayu_settings.h"
 
 #include "api/api_sensitive_content.h"
 #include "data/data_user.h"
@@ -1734,6 +1735,13 @@ bool PeerData::isAyuNoForwards() const {
 }
 
 bool PeerData::allowsForwarding() const {
+	// DarkGram: the fork already returns false from HistoryItem::forbidsForward, which
+	// lifts the restriction per message. The chat-level flag was still enforced, so a
+	// protected channel stayed protected. This is the one place all three peer types
+	// funnel through.
+	if (AyuSettings::getInstance().bypassCopyProtection()) {
+		return true;
+	}
 	if (const auto user = asUser()) {
 		return user->allowsForwarding();
 	} else if (const auto channel = asChannel()) {

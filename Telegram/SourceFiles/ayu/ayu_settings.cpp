@@ -562,6 +562,18 @@ void AyuSettings::setTrackNameChanges(bool val) {
 	save();
 }
 
+void AyuSettings::setKeepOneTimeMedia(bool val) {
+	if (_keepOneTimeMedia.current() == val) return;
+	_keepOneTimeMedia = val;
+	save();
+}
+
+void AyuSettings::setBypassCopyProtection(bool val) {
+	if (_bypassCopyProtection.current() == val) return;
+	_bypassCopyProtection = val;
+	save();
+}
+
 void AyuSettings::setNameChangeLog(const QString &val) {
 	if (_nameChangeLog.current() == val) return;
 	_nameChangeLog = val;
@@ -1119,6 +1131,8 @@ void to_json(nlohmann::json &j, const AyuSettings &s) {
 		{"stripLinkTracking", s._stripLinkTracking.current()},
 		{"sessionWatchEnabled", s._sessionWatchEnabled.current()},
 		{"trackNameChanges", s._trackNameChanges.current()},
+		{"keepOneTimeMedia", s._keepOneTimeMedia.current()},
+		{"bypassCopyProtection", s._bypassCopyProtection.current()},
 		{"nameChangeLog", s._nameChangeLog.current()},
 		{"knownSessionHashes", s._knownSessionHashes.current()},
 		{"saveMessagesHistory", s._saveMessagesHistory.current()},
@@ -1229,6 +1243,8 @@ void from_json(const nlohmann::json &j, AyuSettings &s) {
 	s._stripLinkTracking = j.value("stripLinkTracking", defaults._stripLinkTracking.current());
 	s._sessionWatchEnabled = j.value("sessionWatchEnabled", defaults._sessionWatchEnabled.current());
 	s._trackNameChanges = j.value("trackNameChanges", defaults._trackNameChanges.current());
+	s._keepOneTimeMedia = j.value("keepOneTimeMedia", defaults._keepOneTimeMedia.current());
+	s._bypassCopyProtection = j.value("bypassCopyProtection", defaults._bypassCopyProtection.current());
 	s._nameChangeLog = j.value("nameChangeLog", defaults._nameChangeLog.current());
 	s._knownSessionHashes = j.value("knownSessionHashes", defaults._knownSessionHashes.current());
 	s._saveMessagesHistory = j.value("saveMessagesHistory", defaults._saveMessagesHistory.current());
