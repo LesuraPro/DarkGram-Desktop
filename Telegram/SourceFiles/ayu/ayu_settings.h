@@ -273,6 +273,10 @@ public:
 	[[nodiscard]] bool sessionWatchEnabled() const { return _sessionWatchEnabled.current(); }
 	[[nodiscard]] bool trackNameChanges() const { return _trackNameChanges.current(); }
 	[[nodiscard]] bool keepOneTimeMedia() const { return _keepOneTimeMedia.current(); }
+	[[nodiscard]] bool ghostScheduleEnabled() const { return _ghostScheduleEnabled.current(); }
+	[[nodiscard]] int ghostScheduleFrom() const { return _ghostScheduleFrom.current(); }
+	[[nodiscard]] int ghostScheduleTo() const { return _ghostScheduleTo.current(); }
+	[[nodiscard]] bool confirmSendToGroup() const { return _confirmSendToGroup.current(); }
 	[[nodiscard]] bool bypassCopyProtection() const { return _bypassCopyProtection.current(); }
 	[[nodiscard]] const QString &nameChangeLog() const { return _nameChangeLog.current(); }
 	[[nodiscard]] const QString &knownSessionHashes() const { return _knownSessionHashes.current(); }
@@ -368,6 +372,10 @@ public:
 	void setSessionWatchEnabled(bool val);
 	void setTrackNameChanges(bool val);
 	void setKeepOneTimeMedia(bool val);
+	void setGhostScheduleEnabled(bool val);
+	void setGhostScheduleFrom(int val);
+	void setGhostScheduleTo(int val);
+	void setConfirmSendToGroup(bool val);
 	void setBypassCopyProtection(bool val);
 	void setNameChangeLog(const QString &val);
 	void setKnownSessionHashes(const QString &val);
@@ -647,6 +655,10 @@ private:
 	rpl::variable<bool> _sessionWatchEnabled = true;
 	rpl::variable<bool> _trackNameChanges = true;
 	rpl::variable<bool> _keepOneTimeMedia = false;
+	rpl::variable<bool> _ghostScheduleEnabled = false;
+	rpl::variable<int> _ghostScheduleFrom = 22;
+	rpl::variable<int> _ghostScheduleTo = 8;
+	rpl::variable<bool> _confirmSendToGroup = false;
 	rpl::variable<bool> _bypassCopyProtection = false;
 	// Recent renames, as a JSON array.
 	rpl::variable<QString> _nameChangeLog;

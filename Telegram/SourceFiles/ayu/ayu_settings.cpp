@@ -568,6 +568,30 @@ void AyuSettings::setKeepOneTimeMedia(bool val) {
 	save();
 }
 
+void AyuSettings::setGhostScheduleEnabled(bool val) {
+	if (_ghostScheduleEnabled.current() == val) return;
+	_ghostScheduleEnabled = val;
+	save();
+}
+
+void AyuSettings::setGhostScheduleFrom(int val) {
+	if (_ghostScheduleFrom.current() == val) return;
+	_ghostScheduleFrom = val;
+	save();
+}
+
+void AyuSettings::setGhostScheduleTo(int val) {
+	if (_ghostScheduleTo.current() == val) return;
+	_ghostScheduleTo = val;
+	save();
+}
+
+void AyuSettings::setConfirmSendToGroup(bool val) {
+	if (_confirmSendToGroup.current() == val) return;
+	_confirmSendToGroup = val;
+	save();
+}
+
 void AyuSettings::setBypassCopyProtection(bool val) {
 	if (_bypassCopyProtection.current() == val) return;
 	_bypassCopyProtection = val;
@@ -1132,6 +1156,10 @@ void to_json(nlohmann::json &j, const AyuSettings &s) {
 		{"sessionWatchEnabled", s._sessionWatchEnabled.current()},
 		{"trackNameChanges", s._trackNameChanges.current()},
 		{"keepOneTimeMedia", s._keepOneTimeMedia.current()},
+		{"ghostScheduleEnabled", s._ghostScheduleEnabled.current()},
+		{"ghostScheduleFrom", s._ghostScheduleFrom.current()},
+		{"ghostScheduleTo", s._ghostScheduleTo.current()},
+		{"confirmSendToGroup", s._confirmSendToGroup.current()},
 		{"bypassCopyProtection", s._bypassCopyProtection.current()},
 		{"nameChangeLog", s._nameChangeLog.current()},
 		{"knownSessionHashes", s._knownSessionHashes.current()},
@@ -1244,6 +1272,10 @@ void from_json(const nlohmann::json &j, AyuSettings &s) {
 	s._sessionWatchEnabled = j.value("sessionWatchEnabled", defaults._sessionWatchEnabled.current());
 	s._trackNameChanges = j.value("trackNameChanges", defaults._trackNameChanges.current());
 	s._keepOneTimeMedia = j.value("keepOneTimeMedia", defaults._keepOneTimeMedia.current());
+	s._ghostScheduleEnabled = j.value("ghostScheduleEnabled", defaults._ghostScheduleEnabled.current());
+	s._ghostScheduleFrom = j.value("ghostScheduleFrom", defaults._ghostScheduleFrom.current());
+	s._ghostScheduleTo = j.value("ghostScheduleTo", defaults._ghostScheduleTo.current());
+	s._confirmSendToGroup = j.value("confirmSendToGroup", defaults._confirmSendToGroup.current());
 	s._bypassCopyProtection = j.value("bypassCopyProtection", defaults._bypassCopyProtection.current());
 	s._nameChangeLog = j.value("nameChangeLog", defaults._nameChangeLog.current());
 	s._knownSessionHashes = j.value("knownSessionHashes", defaults._knownSessionHashes.current());

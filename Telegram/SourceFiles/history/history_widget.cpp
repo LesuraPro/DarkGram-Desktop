@@ -5640,7 +5640,30 @@ void HistoryWidget::sendVoice(const VoiceToSend &data) {
 void HistoryWidget::send(Api::SendOptions options) {
 	if (!_history) {
 		return;
-	} else if (_editMsgId) {
+	}
+
+	// DarkGram: the message that goes to the wrong chat is almost always the one sent to a
+	// group. crl::guard drops the callback if the widget is gone by the time the box is
+	// answered, which is the whole hazard of re-entering send() from a dialog.
+	static auto confirming = false;
+	if (AyuSettings::getInstance().confirmSendToGroup()
+		&& !confirming
+		&& !_editMsgId
+		&& !_history->peer->isUser()) {
+		Ui::show(Ui::MakeConfirmBox({
+			.text = u"Отправить в «"_q + _history->peer->name() + u"»?"_q,
+			.confirmed = crl::guard(this, [=](Fn<void()> close) {
+				close();
+				confirming = true;
+				send(options);
+				confirming = false;
+			}),
+			.confirmText = u"Отправить"_q,
+		}));
+		return;
+	}
+
+	if (_editMsgId) {
 		saveEditMessage({});
 		return;
 	} else if (const auto page = shownRichMessage()) {

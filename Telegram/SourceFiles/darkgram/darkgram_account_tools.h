@@ -21,4 +21,9 @@ void ShowPrivacyAudit(not_null<Main::Session*> session);
 // traffic goes direct.
 void ShowConnectionInfo(not_null<Main::Session*> session);
 
+// Turns ghost mode on and off by the clock, using the fork's own toggle rather than
+// touching how ghost mode works. Only acts when the window boundary is crossed, so a
+// manual toggle inside the window is not overwritten on the next tick.
+void ApplyGhostSchedule(not_null<Main::Session*> session);
+
 } // namespace DarkGram::AccountTools

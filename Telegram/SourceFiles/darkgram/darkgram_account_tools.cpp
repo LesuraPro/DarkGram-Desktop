@@ -13,6 +13,8 @@
 #include "mtproto/mtproto_proxy_data.h"
 #include "ui/boxes/confirm_box.h"
 
+#include <QTime>
+
 namespace DarkGram::AccountTools {
 namespace {
 
@@ -94,6 +96,32 @@ void ShowPrivacyAudit(not_null<Main::Session*> session) {
 			}));
 		}, Lifetime);
 	}
+}
+
+void ApplyGhostSchedule(not_null<Main::Session*> session) {
+	const auto &settings = AyuSettings::getInstance();
+	if (!settings.ghostScheduleEnabled()) {
+		return;
+	}
+	const auto from = settings.ghostScheduleFrom();
+	const auto to = settings.ghostScheduleTo();
+	if (from == to) {
+		return;
+	}
+	const auto hour = QTime::currentTime().hour();
+	// A window that crosses midnight is the normal case for this, not the exception.
+	const auto inside = (from < to)
+		? (hour >= from && hour < to)
+		: (hour >= from || hour < to);
+
+	// Remembering what we last applied is what keeps this from fighting the user: without
+	// it every tick would re-assert the schedule and a manual toggle would never hold.
+	static auto applied = std::optional<bool>();
+	if (applied == inside) {
+		return;
+	}
+	applied = inside;
+	AyuSettings::ghost(session).setGhostModeEnabled(inside);
 }
 
 void ShowConnectionInfo(not_null<Main::Session*> session) {
