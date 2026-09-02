@@ -3,6 +3,7 @@
 
 #include "api/api_user_privacy.h"
 #include "apiwrap.h"
+#include "ayu/ayu_settings.h"
 #include "boxes/abstract_box.h"
 #include "core/application.h"
 #include "core/core_settings.h"
