@@ -616,6 +616,12 @@ void AyuSettings::setContactNotes(const QString &val) {
 	save();
 }
 
+void AyuSettings::setNotifyKeywords(const QString &val) {
+	if (_notifyKeywords.current() == val) return;
+	_notifyKeywords = val;
+	save();
+}
+
 void AyuSettings::setKnownSessionHashes(const QString &val) {
 	if (_knownSessionHashes.current() == val) return;
 	_knownSessionHashes = val;
@@ -1176,6 +1182,7 @@ void to_json(nlohmann::json &j, const AyuSettings &s) {
 		{"nameChangeLog", s._nameChangeLog.current()},
 		{"contactAliases", s._contactAliases.current()},
 		{"contactNotes", s._contactNotes.current()},
+		{"notifyKeywords", s._notifyKeywords.current()},
 		{"knownSessionHashes", s._knownSessionHashes.current()},
 		{"saveMessagesHistory", s._saveMessagesHistory.current()},
 		{"saveForBots", s._saveForBots.current()},
@@ -1294,6 +1301,7 @@ void from_json(const nlohmann::json &j, AyuSettings &s) {
 	s._nameChangeLog = j.value("nameChangeLog", defaults._nameChangeLog.current());
 	s._contactAliases = j.value("contactAliases", defaults._contactAliases.current());
 	s._contactNotes = j.value("contactNotes", defaults._contactNotes.current());
+	s._notifyKeywords = j.value("notifyKeywords", defaults._notifyKeywords.current());
 	s._knownSessionHashes = j.value("knownSessionHashes", defaults._knownSessionHashes.current());
 	s._saveMessagesHistory = j.value("saveMessagesHistory", defaults._saveMessagesHistory.current());
 	s._saveForBots = j.value("saveForBots", defaults._saveForBots.current());

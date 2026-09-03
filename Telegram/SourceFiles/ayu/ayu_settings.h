@@ -281,6 +281,8 @@ public:
 	[[nodiscard]] const QString &nameChangeLog() const { return _nameChangeLog.current(); }
 	[[nodiscard]] const QString &contactAliases() const { return _contactAliases.current(); }
 	[[nodiscard]] const QString &contactNotes() const { return _contactNotes.current(); }
+	// Comma separated words that should notify even from a muted chat.
+	[[nodiscard]] const QString &notifyKeywords() const { return _notifyKeywords.current(); }
 	[[nodiscard]] const QString &knownSessionHashes() const { return _knownSessionHashes.current(); }
 	[[nodiscard]] bool saveMessagesHistory() const { return _saveMessagesHistory.current(); }
 	[[nodiscard]] bool saveForBots() const { return _saveForBots.current(); }
@@ -382,6 +384,7 @@ public:
 	void setNameChangeLog(const QString &val);
 	void setContactAliases(const QString &val);
 	void setContactNotes(const QString &val);
+	void setNotifyKeywords(const QString &val);
 	void setKnownSessionHashes(const QString &val);
 	void setSaveMessagesHistory(bool val);
 	void setSaveForBots(bool val);
@@ -669,6 +672,7 @@ private:
 	// Local only: peer id to the name we chose, and to a private note.
 	rpl::variable<QString> _contactAliases;
 	rpl::variable<QString> _contactNotes;
+	rpl::variable<QString> _notifyKeywords;
 	// Session hashes seen on the previous run, comma separated.
 	rpl::variable<QString> _knownSessionHashes;
 	rpl::variable<bool> _saveMessagesHistory = true;

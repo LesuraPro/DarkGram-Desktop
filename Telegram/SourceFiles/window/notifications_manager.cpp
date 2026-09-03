@@ -6,6 +6,7 @@ For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "window/notifications_manager.h"
+#include "ayu/ayu_settings.h"
 
 #include "base/options.h"
 #include "base/platform/base_platform_info.h"
@@ -355,6 +356,20 @@ System::SkipState System::computeSkipState(
 	const auto notifyBy = messageType
 		? item->specialNotificationPeer()
 		: notification.reactionOrVoteSender;
+	// DarkGram: a keyword outranks a muted chat. Checked before the mute rules rather
+	// than after, because those return early and the whole point is to override them.
+	if (messageType && !item->out()) {
+		const auto keywords = AyuSettings::getInstance().notifyKeywords();
+		if (!keywords.isEmpty()) {
+			const auto text = item->originalText().text.toLower();
+			for (const auto &word : keywords.split(',', Qt::SkipEmptyParts)) {
+				const auto trimmed = word.trimmed().toLower();
+				if (!trimmed.isEmpty() && text.contains(trimmed)) {
+					return { SkipState::DontSkip };
+				}
+			}
+		}
+	}
 	if (Core::Quitting()) {
 		return { SkipState::Skip };
 	} else if (!Core::App().settings().notifyFromAll()

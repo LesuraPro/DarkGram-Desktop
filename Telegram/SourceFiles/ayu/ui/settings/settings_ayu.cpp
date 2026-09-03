@@ -6,6 +6,7 @@
 // Copyright @Radolyn, 2026
 #include "ayu/ui/settings/settings_ayu.h"
 #include "darkgram/darkgram_account_tools.h"
+#include "ayu/ui/boxes/edit_mark_box.h"
 
 #include "lang_auto.h"
 #include "ayu/ayu_settings.h"
@@ -362,6 +363,19 @@ void BuildGhostEssentials(SectionBuilder &builder) {
 				st::settingsButtonNoIcon
 			)->setClickedCallback([=] {
 				DarkGram::AccountTools::ShowConnectionInfo(&controller->session());
+			});
+			AddButtonWithIcon(
+				container,
+				rpl::single(u"Слова для оповещения"_q),
+				st::settingsButtonNoIcon
+			)->setClickedCallback([] {
+				Ui::show(Box<EditMarkBox>(
+					rpl::single(u"Слова через запятую"_q),
+					AyuSettings::getInstance().notifyKeywords(),
+					QString(),
+					[](const QString &value) {
+						AyuSettings::getInstance().setNotifyKeywords(value);
+					}));
 			});
 			AddButtonWithIcon(
 				container,
