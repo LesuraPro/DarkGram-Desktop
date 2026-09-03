@@ -26,4 +26,10 @@ void ShowConnectionInfo(not_null<Main::Session*> session);
 // manual toggle inside the window is not overwritten on the next tick.
 void ApplyGhostSchedule(not_null<Main::Session*> session);
 
+// Copies every setting out to a file of the reader's choosing, and back. The fork already
+// keeps its settings as one JSON file, so this moves that file rather than serialising
+// the same values a second time and letting the two drift.
+void ExportSettings();
+void ImportSettings();
+
 } // namespace DarkGram::AccountTools

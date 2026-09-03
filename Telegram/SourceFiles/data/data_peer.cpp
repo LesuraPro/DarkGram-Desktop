@@ -1321,6 +1321,13 @@ int PeerData::nameVersion() const {
 }
 
 const QString &PeerData::name() const {
+	// DarkGram: a locally chosen name wins over the one the peer presents. This is the
+	// point every display of a name goes through, so one check covers the chat list, the
+	// header, forwards and mentions alike. Nothing is sent anywhere.
+	const auto &alias = DarkGram::PeerTools::Alias(id);
+	if (!alias.isEmpty()) {
+		return alias;
+	}
 	if (const auto to = migrateTo()) {
 		return to->name();
 	} else if (const auto broadcast = monoforumBroadcast()) {

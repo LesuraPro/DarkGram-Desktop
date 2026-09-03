@@ -363,6 +363,20 @@ void BuildGhostEssentials(SectionBuilder &builder) {
 			)->setClickedCallback([=] {
 				DarkGram::AccountTools::ShowConnectionInfo(&controller->session());
 			});
+			AddButtonWithIcon(
+				container,
+				rpl::single(u"Сохранить настройки в файл"_q),
+				st::settingsButtonNoIcon
+			)->setClickedCallback([] {
+				DarkGram::AccountTools::ExportSettings();
+			});
+			AddButtonWithIcon(
+				container,
+				rpl::single(u"Восстановить настройки из файла"_q),
+				st::settingsButtonNoIcon
+			)->setClickedCallback([] {
+				DarkGram::AccountTools::ImportSettings();
+			});
 			AddSkip(container);
 			AddDivider(container);
 			AddSkip(container);

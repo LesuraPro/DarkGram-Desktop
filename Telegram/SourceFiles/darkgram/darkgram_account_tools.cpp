@@ -14,6 +14,9 @@
 #include "mtproto/mtproto_proxy_data.h"
 #include "ui/boxes/confirm_box.h"
 
+#include "core/file_utilities.h"
+
+#include <QFile>
 #include <QTime>
 
 namespace DarkGram::AccountTools {
@@ -123,6 +126,51 @@ void ApplyGhostSchedule(not_null<Main::Session*> session) {
 	}
 	applied = inside;
 	AyuSettings::ghost(session).setGhostModeEnabled(inside);
+}
+
+void ExportSettings() {
+	const auto source = cWorkingDir() + u"tdata/ayu_settings.json"_q;
+	FileDialog::GetWritePath(
+		Core::App().getFileDialogParent(),
+		u"Сохранить настройки DarkGram"_q,
+		u"JSON (*.json)"_q,
+		u"darkgram-settings.json"_q,
+		[=](const QString &result) {
+			if (result.isEmpty()) {
+				return;
+			}
+			QFile::remove(result);
+			const auto copied = QFile::copy(source, result);
+			Ui::show(Ui::MakeInformBox({
+				.text = copied
+					? u"Настройки сохранены."_q
+					: u"Не удалось сохранить файл."_q,
+				.title = u"Резервная копия"_q,
+			}));
+		});
+}
+
+void ImportSettings() {
+	const auto target = cWorkingDir() + u"tdata/ayu_settings.json"_q;
+	FileDialog::GetOpenPath(
+		Core::App().getFileDialogParent(),
+		u"Восстановить настройки DarkGram"_q,
+		u"JSON (*.json)"_q,
+		[=](const FileDialog::OpenResult &result) {
+			if (result.paths.isEmpty()) {
+				return;
+			}
+			// Written straight over the live file, so the restored values are read on the
+			// next start rather than being fought by whatever is in memory now.
+			QFile::remove(target);
+			const auto copied = QFile::copy(result.paths.front(), target);
+			Ui::show(Ui::MakeInformBox({
+				.text = copied
+					? u"Настройки восстановлены. Перезапустите DarkGram."_q
+					: u"Не удалось прочитать файл."_q,
+				.title = u"Восстановление"_q,
+			}));
+		});
 }
 
 void ShowConnectionInfo(not_null<Main::Session*> session) {

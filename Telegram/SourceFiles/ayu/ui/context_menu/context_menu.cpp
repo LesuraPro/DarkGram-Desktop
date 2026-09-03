@@ -6,6 +6,7 @@
 // Copyright @Radolyn, 2026
 #include "ayu/ui/context_menu/context_menu.h"
 #include "darkgram/darkgram_peer_tools.h"
+#include "ayu/ui/boxes/edit_mark_box.h"
 
 #include "apiwrap.h"
 #include "lang_auto.h"
@@ -275,6 +276,32 @@ void AddAyuGramActions(PeerData *peerData,
 				u"О собеседнике"_q,
 				[=] { DarkGram::PeerTools::ShowInfo(peerData); },
 				&st::menuIconInfo);
+			addAction(
+				u"Псевдоним"_q,
+				[=] {
+					const auto id = peerData->id;
+					Ui::show(Box<EditMarkBox>(
+						rpl::single(u"Псевдоним"_q),
+						DarkGram::PeerTools::Alias(id),
+						QString(),
+						[=](const QString &value) {
+							DarkGram::PeerTools::SetAlias(id, value);
+						}));
+				},
+				&st::menuIconEdit);
+			addAction(
+				u"Заметка"_q,
+				[=] {
+					const auto id = peerData->id;
+					Ui::show(Box<EditMarkBox>(
+						rpl::single(u"Заметка"_q),
+						DarkGram::PeerTools::Note(id),
+						QString(),
+						[=](const QString &value) {
+							DarkGram::PeerTools::SetNote(id, value);
+						}));
+				},
+				&st::menuIconEdit);
 			if (showFilters) {
 				addAction(
 					tr::ayu_ViewFiltersMenuText(tr::now),

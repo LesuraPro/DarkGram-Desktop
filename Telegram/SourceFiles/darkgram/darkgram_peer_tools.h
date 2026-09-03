@@ -27,4 +27,13 @@ void RecordNameChange(
 // person from a throwaway, and any recorded renames.
 void ShowInfo(not_null<PeerData*> peer);
 
+// A locally chosen name for a peer, or an empty string. Kept on this device only: nothing
+// here is sent anywhere, which is the point of renaming someone privately.
+[[nodiscard]] const QString &Alias(PeerId id);
+void SetAlias(PeerId id, const QString &alias);
+
+// A private note about a peer, shown in the info box.
+[[nodiscard]] QString Note(PeerId id);
+void SetNote(PeerId id, const QString &note);
+
 } // namespace DarkGram::PeerTools

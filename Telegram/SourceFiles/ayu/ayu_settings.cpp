@@ -604,6 +604,18 @@ void AyuSettings::setNameChangeLog(const QString &val) {
 	save();
 }
 
+void AyuSettings::setContactAliases(const QString &val) {
+	if (_contactAliases.current() == val) return;
+	_contactAliases = val;
+	save();
+}
+
+void AyuSettings::setContactNotes(const QString &val) {
+	if (_contactNotes.current() == val) return;
+	_contactNotes = val;
+	save();
+}
+
 void AyuSettings::setKnownSessionHashes(const QString &val) {
 	if (_knownSessionHashes.current() == val) return;
 	_knownSessionHashes = val;
@@ -1162,6 +1174,8 @@ void to_json(nlohmann::json &j, const AyuSettings &s) {
 		{"confirmSendToGroup", s._confirmSendToGroup.current()},
 		{"bypassCopyProtection", s._bypassCopyProtection.current()},
 		{"nameChangeLog", s._nameChangeLog.current()},
+		{"contactAliases", s._contactAliases.current()},
+		{"contactNotes", s._contactNotes.current()},
 		{"knownSessionHashes", s._knownSessionHashes.current()},
 		{"saveMessagesHistory", s._saveMessagesHistory.current()},
 		{"saveForBots", s._saveForBots.current()},
@@ -1278,6 +1292,8 @@ void from_json(const nlohmann::json &j, AyuSettings &s) {
 	s._confirmSendToGroup = j.value("confirmSendToGroup", defaults._confirmSendToGroup.current());
 	s._bypassCopyProtection = j.value("bypassCopyProtection", defaults._bypassCopyProtection.current());
 	s._nameChangeLog = j.value("nameChangeLog", defaults._nameChangeLog.current());
+	s._contactAliases = j.value("contactAliases", defaults._contactAliases.current());
+	s._contactNotes = j.value("contactNotes", defaults._contactNotes.current());
 	s._knownSessionHashes = j.value("knownSessionHashes", defaults._knownSessionHashes.current());
 	s._saveMessagesHistory = j.value("saveMessagesHistory", defaults._saveMessagesHistory.current());
 	s._saveForBots = j.value("saveForBots", defaults._saveForBots.current());

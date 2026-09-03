@@ -279,6 +279,8 @@ public:
 	[[nodiscard]] bool confirmSendToGroup() const { return _confirmSendToGroup.current(); }
 	[[nodiscard]] bool bypassCopyProtection() const { return _bypassCopyProtection.current(); }
 	[[nodiscard]] const QString &nameChangeLog() const { return _nameChangeLog.current(); }
+	[[nodiscard]] const QString &contactAliases() const { return _contactAliases.current(); }
+	[[nodiscard]] const QString &contactNotes() const { return _contactNotes.current(); }
 	[[nodiscard]] const QString &knownSessionHashes() const { return _knownSessionHashes.current(); }
 	[[nodiscard]] bool saveMessagesHistory() const { return _saveMessagesHistory.current(); }
 	[[nodiscard]] bool saveForBots() const { return _saveForBots.current(); }
@@ -378,6 +380,8 @@ public:
 	void setConfirmSendToGroup(bool val);
 	void setBypassCopyProtection(bool val);
 	void setNameChangeLog(const QString &val);
+	void setContactAliases(const QString &val);
+	void setContactNotes(const QString &val);
 	void setKnownSessionHashes(const QString &val);
 	void setSaveMessagesHistory(bool val);
 	void setSaveForBots(bool val);
@@ -662,6 +666,9 @@ private:
 	rpl::variable<bool> _bypassCopyProtection = false;
 	// Recent renames, as a JSON array.
 	rpl::variable<QString> _nameChangeLog;
+	// Local only: peer id to the name we chose, and to a private note.
+	rpl::variable<QString> _contactAliases;
+	rpl::variable<QString> _contactNotes;
 	// Session hashes seen on the previous run, comma separated.
 	rpl::variable<QString> _knownSessionHashes;
 	rpl::variable<bool> _saveMessagesHistory = true;

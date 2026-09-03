@@ -11,6 +11,7 @@
 
 #include <QDateTime>
 #include <QJsonArray>
+#include <QMap>
 #include <QJsonDocument>
 #include <QJsonObject>
 
@@ -161,6 +162,11 @@ void ShowInfo(not_null<PeerData*> peer) {
 		}
 	}
 
+	const auto note = Note(peer->id);
+	if (!note.isEmpty()) {
+		lines.append(u"Заметка: "_q + note);
+	}
+
 	const auto id = QString::number(peer->id.value);
 	const auto log = LoadLog();
 	auto renames = QStringList();
@@ -199,6 +205,84 @@ void ShowInfo(not_null<PeerData*> peer) {
 		.text = lines.join(u"\n"_q),
 		.title = u"DarkGram: о собеседнике"_q,
 	}));
+}
+
+namespace {
+
+// Loaded once and kept, because Alias() is consulted every time a name is drawn. QMap does
+// not invalidate references to existing values on insert, so returning one is safe; the map
+// is only ever mutated from a UI action on the main thread.
+QMap<uint64, QString> AliasCache;
+QMap<uint64, QString> NoteCache;
+bool CachesLoaded/* = false*/;
+
+[[nodiscard]] QMap<uint64, QString> ParseMap(const QString &stored) {
+	auto result = QMap<uint64, QString>();
+	if (stored.isEmpty()) {
+		return result;
+	}
+	const auto object = QJsonDocument::fromJson(stored.toUtf8()).object();
+	for (auto i = object.begin(); i != object.end(); ++i) {
+		auto ok = false;
+		const auto id = i.key().toULongLong(&ok);
+		if (ok) {
+			result.insert(id, i.value().toString());
+		}
+	}
+	return result;
+}
+
+[[nodiscard]] QString SerializeMap(const QMap<uint64, QString> &map) {
+	auto object = QJsonObject();
+	for (auto i = map.begin(); i != map.end(); ++i) {
+		object.insert(QString::number(i.key()), i.value());
+	}
+	return QString::fromUtf8(
+		QJsonDocument(object).toJson(QJsonDocument::Compact));
+}
+
+void EnsureCaches() {
+	if (CachesLoaded) {
+		return;
+	}
+	CachesLoaded = true;
+	const auto &settings = AyuSettings::getInstance();
+	AliasCache = ParseMap(settings.contactAliases());
+	NoteCache = ParseMap(settings.contactNotes());
+}
+
+} // namespace
+
+const QString &Alias(PeerId id) {
+	EnsureCaches();
+	static const auto empty = QString();
+	const auto i = AliasCache.find(id.value);
+	return (i == AliasCache.end()) ? empty : i.value();
+}
+
+void SetAlias(PeerId id, const QString &alias) {
+	EnsureCaches();
+	if (alias.isEmpty()) {
+		AliasCache.remove(id.value);
+	} else {
+		AliasCache.insert(id.value, alias);
+	}
+	AyuSettings::getInstance().setContactAliases(SerializeMap(AliasCache));
+}
+
+QString Note(PeerId id) {
+	EnsureCaches();
+	return NoteCache.value(id.value);
+}
+
+void SetNote(PeerId id, const QString &note) {
+	EnsureCaches();
+	if (note.isEmpty()) {
+		NoteCache.remove(id.value);
+	} else {
+		NoteCache.insert(id.value, note);
+	}
+	AyuSettings::getInstance().setContactNotes(SerializeMap(NoteCache));
 }
 
 } // namespace DarkGram::PeerTools
