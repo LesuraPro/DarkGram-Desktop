@@ -198,7 +198,7 @@ jobs:
           -D DESKTOP_APP_DISABLE_AUTOUPDATE=ON ^
           -D DESKTOP_APP_DISABLE_CRASH_REPORTS=ON
 
-          cmake --build ..\out --config Release --parallel 3
+          cmake --build ..\out --config Release --parallel 2
 
       - name: Collect artifact.
         run: |
