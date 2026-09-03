@@ -54,6 +54,24 @@ jobs:
           }
           Get-PSDrive C | Select-Object Used,Free
 
+      # Building the release variants of the libraries pulls in breakpad, whose Windows
+      # crash-dump tooling includes atlbase.h. The runner image ships Visual Studio without
+      # the ATL component, so the Debug-only build never noticed it was missing.
+      - name: Install the ATL component.
+        shell: pwsh
+        run: |
+          $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer"
+          $vsPath = & "$installer\vswhere.exe" -latest -property installationPath
+          Write-Output "Visual Studio at $vsPath"
+          $p = Start-Process -Wait -PassThru -FilePath "$installer\vs_installer.exe" -ArgumentList @(
+            'modify', '--installPath', "`"$vsPath`"",
+            '--add', 'Microsoft.VisualStudio.Component.VC.ATL',
+            '--quiet', '--norestart', '--nocache'
+          )
+          if ($p.ExitCode -ne 0 -and $p.ExitCode -ne 3010) {
+            throw "vs_installer failed with $($p.ExitCode)"
+          }
+
       - name: Prepare directories.
         run: |
           mkdir %userprofile%\TBuild\Libraries
