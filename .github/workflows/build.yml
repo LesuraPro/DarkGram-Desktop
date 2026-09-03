@@ -83,6 +83,7 @@ jobs:
           echo "$(sha256sum $TBUILD/$REPO_NAME/$PREPARE_PATH | awk '{ print $1 }')" >> CACHE_KEY.txt
           echo "$SDK" >> CACHE_KEY.txt
           echo "$TOOLSET" >> CACHE_KEY.txt
+          echo "release" >> CACHE_KEY.txt
           echo "CACHE_KEY=$(sha256sum CACHE_KEY.txt | awk '{ print $1 }')" >> $GITHUB_ENV
 
           # prepare.py cherry-picks patches, and git refuses to do that unidentified.
@@ -131,7 +132,7 @@ jobs:
 
       - name: Libraries.
         run: |
-          %TBUILD%\%REPO_NAME%\Telegram\build\prepare\win.bat skip-release silent qt6
+          %TBUILD%\%REPO_NAME%\Telegram\build\prepare\win.bat silent qt6
 
       # Saved here rather than by actions/cache's own post step, which skips saving when the
       # job fails -- and a failure after this point still leaves an hour and a half of built
@@ -192,17 +193,16 @@ jobs:
           x64 ^
           qt6 ^
           %BUILD_API% ^
-          -D CMAKE_CONFIGURATION_TYPES=Debug ^
+          -D CMAKE_CONFIGURATION_TYPES=Release ^
           -D CMAKE_COMPILE_WARNING_AS_ERROR=OFF ^
-          -D CMAKE_MSVC_DEBUG_INFORMATION_FORMAT= ^
           -D DESKTOP_APP_DISABLE_AUTOUPDATE=ON ^
           -D DESKTOP_APP_DISABLE_CRASH_REPORTS=ON
 
-          cmake --build ..\out --config Debug --parallel 3
+          cmake --build ..\out --config Release --parallel 3
 
       - name: Collect artifact.
         run: |
-          set OUT=%TBUILD%\%REPO_NAME%\out\Debug
+          set OUT=%TBUILD%\%REPO_NAME%\out\Release
           mkdir artifact
           rem The binary is named after the app, not the target: AppFile in
           rem core/version.h decides it, so after the rename it is DarkGram.exe.
