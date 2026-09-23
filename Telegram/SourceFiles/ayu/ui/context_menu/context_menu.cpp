@@ -6,6 +6,7 @@
 // Copyright @Radolyn, 2026
 #include "ayu/ui/context_menu/context_menu.h"
 #include "darkgram/darkgram_peer_tools.h"
+#include "darkgram/darkgram_security.h"
 #include "ayu/ui/boxes/edit_mark_box.h"
 
 #include "apiwrap.h"
@@ -597,6 +598,19 @@ void AddUserMessagesAction(not_null<Ui::PopupMenu*> menu, HistoryItem *item) {
 			},
 			&st::menuIconTTL);
 	}
+}
+
+// DarkGram: the hash of an attached file, for checking it without opening it.
+void AddFileHashAction(not_null<Ui::PopupMenu*> menu, HistoryItem *item) {
+	const auto media = item->media();
+	const auto document = media ? media->document() : nullptr;
+	if (!document || document->sticker()) {
+		return;
+	}
+	menu->addAction(
+		u"SHA-256"_q,
+		[=] { DarkGram::Security::ShowFileHash(document); },
+		&st::menuIconInfo);
 }
 
 void AddMessageDetailsAction(not_null<Ui::PopupMenu*> menu, HistoryItem *item) {

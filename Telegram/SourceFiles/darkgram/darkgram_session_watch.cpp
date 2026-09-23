@@ -4,6 +4,7 @@
 #include "api/api_authorizations.h"
 #include "apiwrap.h"
 #include "ayu/ayu_settings.h"
+#include "darkgram/darkgram_security.h"
 #include "boxes/abstract_box.h"
 #include "main/main_session.h"
 #include "ui/boxes/confirm_box.h"
@@ -66,6 +67,7 @@ void Report(const Api::Authorizations::List &list) {
 			line += u"\n"_q + origin;
 		}
 		lines.append(line);
+		Security::LogEvent(u"session"_q, QString(line).replace(u"\n"_q, u", "_q));
 	}
 	if (lines.isEmpty()) {
 		return;

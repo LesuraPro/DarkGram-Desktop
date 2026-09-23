@@ -2,6 +2,7 @@
 #include "darkgram/darkgram_peer_tools.h"
 
 #include "ayu/ayu_settings.h"
+#include "darkgram/darkgram_security.h"
 #include "boxes/abstract_box.h"
 #include "data/data_channel.h"
 #include "data/data_chat.h"
@@ -129,6 +130,7 @@ void RecordNameChange(
 		log.removeFirst();
 	}
 	SaveLog(log);
+	Security::LogEvent(u"rename"_q, before.name + u" -> "_q + newName);
 }
 
 void ShowInfo(not_null<PeerData*> peer) {
@@ -154,11 +156,28 @@ void ShowInfo(not_null<PeerData*> peer) {
 		if (user->isFake()) {
 			marks.append(u"помечен как подделка"_q);
 		}
+		// The raw first and last name rather than name(): a local alias must not hide
+		// what the account calls itself.
+		if (!user->isVerified()
+			&& user->id != PeerData::kServiceNotificationsId
+			&& Security::ImitatesService(
+				user->firstName + u" "_q + user->lastName,
+				user->username())) {
+			marks.append(u"выдаёт себя за службу, но не верифицирован"_q);
+		}
 		if (!marks.isEmpty()) {
 			lines.append(u"Признаки: "_q + marks.join(u", "_q));
 		}
 		if (user->isContact()) {
 			lines.append(u"В контактах"_q);
+		}
+	}
+
+	// A channel is the usual vehicle for a fake "official" announcement.
+	if (const auto channel = peer->asChannel()) {
+		if (!channel->isVerified()
+			&& Security::ImitatesService(channel->name(), channel->username())) {
+			lines.append(u"Признаки: выдаёт себя за службу, но не верифицирован"_q);
 		}
 	}
 

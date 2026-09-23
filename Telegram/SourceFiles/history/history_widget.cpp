@@ -217,6 +217,9 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 // AyuGram includes
 #include "ayu/ayu_settings.h"
+#include "darkgram/darkgram_security.h"
+
+#include <QFileInfo>
 #include "ayu/features/filters/filters_cache_controller.h"
 #include "ayu/utils/telegram_helpers.h"
 #include "ayu/features/message_shot/message_shot.h"
@@ -7866,6 +7869,41 @@ void HistoryWidget::sendingFilesConfirmed(
 		Api::SendOptions options) {
 	if (!_peer || showSendingFilesError(*bundle)) {
 		return;
+	}
+
+	// DarkGram: a photo sent as a file goes byte for byte, including where it was taken.
+	// Compressed photos are re-encoded and lose it, so only the file path is checked.
+	static auto locationConfirmed = false;
+	if (!locationConfirmed
+		&& !bundle->way.sendImagesAsPhotos()
+		&& AyuSettings::getInstance().warnFileMetadata()) {
+		auto names = QStringList();
+		for (const auto &group : bundle->groups) {
+			for (const auto &file : group.list.files) {
+				if (!file.path.isEmpty()
+					&& DarkGram::Security::HasGpsLocation(file.path)) {
+					names.append(QFileInfo(file.path).fileName());
+				}
+			}
+		}
+		if (!names.isEmpty()) {
+			DarkGram::Security::LogEvent(
+				u"fileLocation"_q,
+				names.join(u", "_q));
+			Ui::show(Ui::MakeConfirmBox({
+				.text = u"В этих файлах записаны координаты места съёмки:\n\n"_q
+					+ names.join(u"\n"_q),
+				.confirmed = crl::guard(this, [=](Fn<void()> close) {
+					close();
+					locationConfirmed = true;
+					sendingFilesConfirmed(bundle, options);
+					locationConfirmed = false;
+				}),
+				.confirmText = u"Всё равно отправить"_q,
+				.title = u"Геометка в файле"_q,
+			}));
+			return;
+		}
 	}
 	const auto ephemeralReply = session().ephemeralMessages()
 		.isEphemeralBotReply(replyTo().messageId);

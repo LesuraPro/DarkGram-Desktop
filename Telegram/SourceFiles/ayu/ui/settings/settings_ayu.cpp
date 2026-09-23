@@ -6,6 +6,7 @@
 // Copyright @Radolyn, 2026
 #include "ayu/ui/settings/settings_ayu.h"
 #include "darkgram/darkgram_account_tools.h"
+#include "darkgram/darkgram_security.h"
 #include "ayu/ui/boxes/edit_mark_box.h"
 
 #include "lang_auto.h"
@@ -390,6 +391,83 @@ void BuildGhostEssentials(SectionBuilder &builder) {
 				st::settingsButtonNoIcon
 			)->setClickedCallback([] {
 				DarkGram::AccountTools::ImportSettings();
+			});
+
+			// DarkGram: the protections were configurable only by editing the settings
+			// file. Each one gets a switch here.
+			AddSkip(container);
+			AddDivider(container);
+			AddSkip(container);
+			AddSubsectionTitle(container, rpl::single(u"Защита DarkGram"_q));
+			AddSettingToggle(
+				container,
+				rpl::single(u"Проверять адрес ссылки"_q),
+				&AyuSettings::checkLinkAddress,
+				&AyuSettings::setCheckLinkAddress);
+			AddSettingToggle(
+				container,
+				rpl::single(u"Удалять трекеры из ссылок"_q),
+				&AyuSettings::stripLinkTracking,
+				&AyuSettings::setStripLinkTracking);
+			AddSettingToggle(
+				container,
+				rpl::single(u"Предупреждать о подозрительных именах и файлах"_q),
+				&AyuSettings::warnSuspiciousNames,
+				&AyuSettings::setWarnSuspiciousNames);
+			AddSettingToggle(
+				container,
+				rpl::single(u"Предупреждать о геометках в файлах"_q),
+				&AyuSettings::warnFileMetadata,
+				&AyuSettings::setWarnFileMetadata);
+			AddSettingToggle(
+				container,
+				rpl::single(u"Сообщать о новых сеансах"_q),
+				&AyuSettings::sessionWatchEnabled,
+				&AyuSettings::setSessionWatchEnabled);
+			AddSettingToggle(
+				container,
+				rpl::single(u"Запоминать смену имён"_q),
+				&AyuSettings::trackNameChanges,
+				&AyuSettings::setTrackNameChanges);
+			AddSettingToggle(
+				container,
+				rpl::single(u"Подтверждать отправку в группу"_q),
+				&AyuSettings::confirmSendToGroup,
+				&AyuSettings::setConfirmSendToGroup);
+			AddSettingToggle(
+				container,
+				rpl::single(u"Одноразовые медиа не сгорают"_q),
+				&AyuSettings::keepOneTimeMedia,
+				&AyuSettings::setKeepOneTimeMedia);
+			AddSettingToggle(
+				container,
+				rpl::single(u"Обходить запрет копирования"_q),
+				&AyuSettings::bypassCopyProtection,
+				&AyuSettings::setBypassCopyProtection);
+			AddSettingToggle(
+				container,
+				rpl::single(u"Скрыть текст в списке чатов"_q),
+				&AyuSettings::hideChatPreviews,
+				&AyuSettings::setHideChatPreviews);
+			AddButtonWithIcon(
+				container,
+				rpl::single(u"Чёрный список доменов"_q),
+				st::settingsButtonNoIcon
+			)->setClickedCallback([] {
+				Ui::show(Box<EditMarkBox>(
+					rpl::single(u"Домены через запятую, поддомены тоже блокируются"_q),
+					AyuSettings::getInstance().blockedDomains(),
+					QString(),
+					[](const QString &value) {
+						AyuSettings::getInstance().setBlockedDomains(value.trimmed());
+					}));
+			});
+			AddButtonWithIcon(
+				container,
+				rpl::single(u"Журнал безопасности"_q),
+				st::settingsButtonNoIcon
+			)->setClickedCallback([] {
+				DarkGram::Security::ShowSecurityLog();
 			});
 			AddSkip(container);
 			AddDivider(container);

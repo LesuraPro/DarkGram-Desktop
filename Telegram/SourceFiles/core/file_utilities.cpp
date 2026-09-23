@@ -8,6 +8,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "core/file_utilities.h"
 #include "ayu/ayu_settings.h"
 #include "darkgram/darkgram_suspicious_text.h"
+#include "darkgram/darkgram_security.h"
 
 #include "core/version.h"
 #include "storage/localstorage.h"
@@ -133,9 +134,38 @@ void OpenUrl(const QString &url) {
 	const auto opened = AyuSettings::getInstance().stripLinkTracking()
 		? DarkGram::StripTrackingParameters(url)
 		: url;
+	const auto proceed = [=] {
+		crl::on_main([=] {
+			Ui::PreventDelayedActivation();
+			Platform::File::UnsafeOpenUrl(opened);
+		});
+	};
+
+	// DarkGram: read the address before opening it. A blocked domain stops here; anything
+	// else that makes the address say something other than where it goes asks first.
+	const auto check = DarkGram::Security::InspectLink(opened);
+	if (check.blocked) {
+		DarkGram::Security::LogEvent(u"blockedLink"_q, check.host);
+		crl::on_main([=] {
+			Ui::show(Ui::MakeInformBox({
+				.text = u"Этот адрес в вашем чёрном списке, ссылка не открыта:\n"_q
+					+ check.host,
+				.title = u"Домен заблокирован"_q,
+			}));
+		});
+		return;
+	} else if (check.reasons.isEmpty()) {
+		proceed();
+		return;
+	}
+	DarkGram::Security::LogEvent(u"suspiciousLink"_q, check.host);
 	crl::on_main([=] {
-		Ui::PreventDelayedActivation();
-		Platform::File::UnsafeOpenUrl(opened);
+		Ui::show(Ui::MakeConfirmBox({
+			.text = opened + u"\n\n"_q + check.reasons.join(u"\n"_q),
+			.confirmed = [=](Fn<void()> close) { close(); proceed(); },
+			.confirmText = u"Всё равно открыть"_q,
+			.title = u"Ссылка ведёт не туда, куда выглядит"_q,
+		}));
 	});
 }
 

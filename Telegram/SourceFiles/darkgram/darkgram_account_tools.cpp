@@ -1,7 +1,9 @@
 // This is the source code of DarkGram for Desktop.
 #include "darkgram/darkgram_account_tools.h"
 
+#include "api/api_cloud_password.h"
 #include "api/api_user_privacy.h"
+#include "core/core_cloud_password.h"
 #include "apiwrap.h"
 #include "ayu/ayu_settings.h"
 #include "boxes/abstract_box.h"
@@ -94,10 +96,25 @@ void ShowPrivacyAudit(not_null<Main::Session*> session) {
 				text += u"\n\nОграниченных настроек: "_q
 					+ QString::number(restricted);
 			}
-			Ui::show(Ui::MakeInformBox({
-				.text = text,
-				.title = u"Что видно посторонним"_q,
-			}));
+
+			// The setting that matters more than all of the above together: without a
+			// cloud password, the login code alone is the whole account.
+			auto &cloud = session->api().cloudPassword();
+			cloud.reload();
+			cloud.state(
+			) | rpl::take(1) | on_next([=](const Core::CloudPasswordState &pass) {
+				auto full = text;
+				if (!pass.hasPassword) {
+					full = u"Облачный пароль (двухэтапная проверка) не установлен. Сейчас для входа в аккаунт достаточно одного кода.\n\n"_q
+						+ full;
+				} else if (!pass.hasRecovery) {
+					full += u"\n\nУ облачного пароля нет почты для восстановления."_q;
+				}
+				Ui::show(Ui::MakeInformBox({
+					.text = full,
+					.title = u"Что видно посторонним"_q,
+				}));
+			}, Lifetime);
 		}, Lifetime);
 	}
 }

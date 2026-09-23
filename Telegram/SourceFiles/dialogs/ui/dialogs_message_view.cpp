@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "dialogs/ui/dialogs_message_view.h"
 
+#include "ayu/ayu_settings.h"
+
 #include "history/history.h"
 #include "history/history_item.h"
 #include "history/view/history_view_element.h"
@@ -184,6 +186,16 @@ void MessageView::prepare(
 	options.ignoreTopic = true;
 	options.spoilerLoginCode = true;
 	auto preview = item->toPreview(options);
+	// DarkGram: keep the last message out of sight of whoever is next to you. Search keeps
+	// its text: searching is the moment the reader wants it.
+	if (AyuSettings::getInstance().hideChatPreviews()
+		&& options.searchLowerText.isEmpty()) {
+		preview.text = TextWithEntities{ u"•••"_q };
+		preview.images.clear();
+		preview.arrowInTextPosition = -1;
+		preview.imagesInTextPosition = 0;
+		preview.icon = ItemPreview::Icon::None;
+	}
 	_leftIcon = (preview.icon == ItemPreview::Icon::ForwardedMessage)
 		? &st::dialogsMiniForward
 		: (preview.icon == ItemPreview::Icon::ReplyToStory)

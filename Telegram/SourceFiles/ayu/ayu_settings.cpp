@@ -550,6 +550,36 @@ void AyuSettings::setStripLinkTracking(bool val) {
 	save();
 }
 
+void AyuSettings::setCheckLinkAddress(bool val) {
+	if (_checkLinkAddress.current() == val) return;
+	_checkLinkAddress = val;
+	save();
+}
+
+void AyuSettings::setWarnFileMetadata(bool val) {
+	if (_warnFileMetadata.current() == val) return;
+	_warnFileMetadata = val;
+	save();
+}
+
+void AyuSettings::setHideChatPreviews(bool val) {
+	if (_hideChatPreviews.current() == val) return;
+	_hideChatPreviews = val;
+	save();
+}
+
+void AyuSettings::setBlockedDomains(const QString &val) {
+	if (_blockedDomains.current() == val) return;
+	_blockedDomains = val;
+	save();
+}
+
+void AyuSettings::setSecurityLog(const QString &val) {
+	if (_securityLog.current() == val) return;
+	_securityLog = val;
+	save();
+}
+
 void AyuSettings::setSessionWatchEnabled(bool val) {
 	if (_sessionWatchEnabled.current() == val) return;
 	_sessionWatchEnabled = val;
@@ -1171,6 +1201,11 @@ void to_json(nlohmann::json &j, const AyuSettings &s) {
 		{"saveDeletedMessages", s._saveDeletedMessages.current()},
 		{"warnSuspiciousNames", s._warnSuspiciousNames.current()},
 		{"stripLinkTracking", s._stripLinkTracking.current()},
+		{"checkLinkAddress", s._checkLinkAddress.current()},
+		{"warnFileMetadata", s._warnFileMetadata.current()},
+		{"hideChatPreviews", s._hideChatPreviews.current()},
+		{"blockedDomains", s._blockedDomains.current()},
+		{"securityLog", s._securityLog.current()},
 		{"sessionWatchEnabled", s._sessionWatchEnabled.current()},
 		{"trackNameChanges", s._trackNameChanges.current()},
 		{"keepOneTimeMedia", s._keepOneTimeMedia.current()},
@@ -1290,6 +1325,11 @@ void from_json(const nlohmann::json &j, AyuSettings &s) {
 	s._saveDeletedMessages = j.value("saveDeletedMessages", defaults._saveDeletedMessages.current());
 	s._warnSuspiciousNames = j.value("warnSuspiciousNames", defaults._warnSuspiciousNames.current());
 	s._stripLinkTracking = j.value("stripLinkTracking", defaults._stripLinkTracking.current());
+	s._checkLinkAddress = j.value("checkLinkAddress", defaults._checkLinkAddress.current());
+	s._warnFileMetadata = j.value("warnFileMetadata", defaults._warnFileMetadata.current());
+	s._hideChatPreviews = j.value("hideChatPreviews", defaults._hideChatPreviews.current());
+	s._blockedDomains = j.value("blockedDomains", defaults._blockedDomains.current());
+	s._securityLog = j.value("securityLog", defaults._securityLog.current());
 	s._sessionWatchEnabled = j.value("sessionWatchEnabled", defaults._sessionWatchEnabled.current());
 	s._trackNameChanges = j.value("trackNameChanges", defaults._trackNameChanges.current());
 	s._keepOneTimeMedia = j.value("keepOneTimeMedia", defaults._keepOneTimeMedia.current());

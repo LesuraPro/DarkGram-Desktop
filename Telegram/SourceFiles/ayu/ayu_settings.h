@@ -270,6 +270,12 @@ public:
 	[[nodiscard]] bool saveDeletedMessages() const { return _saveDeletedMessages.current(); }
 	[[nodiscard]] bool warnSuspiciousNames() const { return _warnSuspiciousNames.current(); }
 	[[nodiscard]] bool stripLinkTracking() const { return _stripLinkTracking.current(); }
+	// DarkGram: second security batch.
+	[[nodiscard]] bool checkLinkAddress() const { return _checkLinkAddress.current(); }
+	[[nodiscard]] bool warnFileMetadata() const { return _warnFileMetadata.current(); }
+	[[nodiscard]] bool hideChatPreviews() const { return _hideChatPreviews.current(); }
+	[[nodiscard]] const QString &blockedDomains() const { return _blockedDomains.current(); }
+	[[nodiscard]] const QString &securityLog() const { return _securityLog.current(); }
 	[[nodiscard]] bool sessionWatchEnabled() const { return _sessionWatchEnabled.current(); }
 	[[nodiscard]] bool trackNameChanges() const { return _trackNameChanges.current(); }
 	[[nodiscard]] bool keepOneTimeMedia() const { return _keepOneTimeMedia.current(); }
@@ -373,6 +379,11 @@ public:
 	void setSaveDeletedMessages(bool val);
 	void setWarnSuspiciousNames(bool val);
 	void setStripLinkTracking(bool val);
+	void setCheckLinkAddress(bool val);
+	void setWarnFileMetadata(bool val);
+	void setHideChatPreviews(bool val);
+	void setBlockedDomains(const QString &val);
+	void setSecurityLog(const QString &val);
 	void setSessionWatchEnabled(bool val);
 	void setTrackNameChanges(bool val);
 	void setKeepOneTimeMedia(bool val);
@@ -659,6 +670,11 @@ private:
 	// Protective and silent when nothing is wrong, so it defaults on.
 	rpl::variable<bool> _warnSuspiciousNames = true;
 	rpl::variable<bool> _stripLinkTracking = true;
+	rpl::variable<bool> _checkLinkAddress = true;
+	rpl::variable<bool> _warnFileMetadata = true;
+	rpl::variable<bool> _hideChatPreviews = false;
+	rpl::variable<QString> _blockedDomains;
+	rpl::variable<QString> _securityLog;
 	rpl::variable<bool> _sessionWatchEnabled = true;
 	rpl::variable<bool> _trackNameChanges = true;
 	rpl::variable<bool> _keepOneTimeMedia = false;

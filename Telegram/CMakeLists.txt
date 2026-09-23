@@ -110,6 +110,8 @@ set(ayugram_files
         darkgram/darkgram_account_tools.h
         darkgram/darkgram_peer_tools.cpp
         darkgram/darkgram_peer_tools.h
+        darkgram/darkgram_security.cpp
+        darkgram/darkgram_security.h
         darkgram/darkgram_session_watch.cpp
         darkgram/darkgram_session_watch.h
         darkgram/darkgram_suspicious_text.cpp
